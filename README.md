@@ -23,9 +23,6 @@ user_keys: {
     ],
     exclusive: true,
     hosts: {
-      'host_one': {
-        excludes: []
-      },
       'host_two': {
         excludes: [
           "key_one"
@@ -52,7 +49,9 @@ user_keys: {
 }
 ```
 
-The hosts specified in `user_keys[user]['hosts']` must be `inventory_hostname`.
+The hosts specified in `user_keys[user]['hosts']` must be `inventory_hostname`,
+it also only lets you specify excludes. Any host not in the dict will get the
+pubkeys specified in the `keys` array.
 
 Example Playbook
 ----------------
