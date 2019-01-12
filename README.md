@@ -1,46 +1,67 @@
-Role Name
+ssh_pub
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Manage ssh pub keys.
 
 Role Variables
 --------------
 
+`ssh_pub` expects a data structure similar to the following:
+
 ```
-pub_keys:
-  - { id: "qbit_primary", desc: "qbit's main key", key: "" }
-  - { id: "backup", desc: "Key used for backups", key: "" }
-
-user_keys:
-  - { user: root, keys: [ "qbit_primary", "backup" ], exclusive: true }
-  - { user: qbit, keys: [ "qbit_primary" ], exclusive: false }
+pub_keys: {
+  "key_one": "ssh-rsa .....",
+  "key_two": "ssh-ed25519 ...."
+  "key_three": "ssh-ed25519 ...."
+}
+user_keys: {
+  user: {
+    keys: [
+      "key_one",
+      "key_two",
+      "key_three"
+    ],
+    exclusive: true,
+    hosts: {
+      'host_one': {
+        excludes: []
+      },
+      'host_two': {
+        excludes: [
+          "key_one"
+        ]
+      },
+      'host_three': {
+        excludes: [
+          "key_one"
+        ]
+      }
+    }
+  },
+  root: {
+    keys: [
+      "key_one"
+    ],
+    exclusive: false,
+    hosts: {
+      '*': {
+        excludes: []
+      }
+    }
+  },
+}
 ```
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+The hosts specified in `user_keys[user]['hosts']` must be `inventory_hostname`.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: qbit.ssh_pub }
 
 License
 -------
 
 BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

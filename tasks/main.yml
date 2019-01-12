@@ -8,7 +8,7 @@
 
 - name: "Get our key lists for each user"
   set_fact:
-    "{{ item.key }}_key_lists": "{% for k in user_keys[item.key]['keys'] %}{{ pub_keys[k] }} {{ k }}\n{% endfor %}"
+    "{{ item.key }}_key_lists": "{% for k in user_keys[item.key]['keys'] %}{% if (user_keys[item.key]['hosts']['*'] is defined or k not in user_keys[item.key]['hosts'][inventory_hostname]['excludes']) %}{{ pub_keys[k] }} {{ k }}\n{% endif %}{% endfor %}"
     "{{ item.key }}_exclusive": "{{ user_keys[item.key]['exclusive'] }}"
   when:  user_keys[item.key] is defined
   loop: "{{ q('dict', local_users.ansible_facts.getent_passwd) }}"
