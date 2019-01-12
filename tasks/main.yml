@@ -1,0 +1,26 @@
+---
+
+- name: "Get a list if users"
+  getent:
+    database: passwd
+    split: ":"
+  register: local_users
+
+- name: "Get our key lists for each user"
+  set_fact:
+    "{{ item.key }}_key_lists": "{% for k in user_keys[item.key]['keys'] %}{{ pub_keys[k] }} {{ k }}\n{% endfor %}"
+    "{{ item.key }}_exclusive": "{{ user_keys[item.key]['exclusive'] }}"
+  when:  user_keys[item.key] is defined
+  loop: "{{ q('dict', local_users.ansible_facts.getent_passwd) }}"
+
+- name: debug
+  debug:
+    msg: "{{ inventory_hostname in user_keys['qbit']['hosts'] }}"
+
+- name: Set our keys for each user
+  authorized_key:
+    user: "{{ item.key }}"
+    key: "{{ lookup('vars', item.key + '_key_lists') }}"
+    exclusive: "{{ lookup('vars', item.key + '_exclusive') }}"
+  when: user_keys[item.key] is defined and (ansible_fqdn in user_keys[item.key]['hosts'] or ansible_hostname in user_keys[item.key]['hosts'] or inventory_hostname in user_keys[item.key]['hosts'] or '*' in user_keys[item.key]['hosts'])
+  loop: "{{ q('dict', local_users.ansible_facts.getent_passwd) }}"
