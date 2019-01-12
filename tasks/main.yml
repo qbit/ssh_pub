@@ -13,10 +13,6 @@
   when:  user_keys[item.key] is defined
   loop: "{{ q('dict', local_users.ansible_facts.getent_passwd) }}"
 
-- name: debug
-  debug:
-    msg: "{{ inventory_hostname in user_keys['qbit']['hosts'] }}"
-
 - name: Set our keys for each user
   authorized_key:
     user: "{{ item.key }}"
